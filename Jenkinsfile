@@ -28,6 +28,26 @@ pipeline{
                 nexusArtifactUploader artifacts: [[artifactId: 'VinayDevOpsLab', classifier: '', file: 'target/VinayDevOpsLab-0.0.3.war', type: 'war']], credentialsId: '24153f1b-eff9-4f07-8740-ba8e200dd5cc', groupId: 'com.vinaysdevopslab', nexusUrl: '10.0.121.254:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'release', version: '0.0.3'
             }
         } 
+        stage ('Deploy to Tomcat'){
+            steps {
+                echo "Deploying ...."
+                sshPublisher(publishers: 
+                [sshPublisherDesc(
+                    configName: 'Ansible_Controller', 
+                    transfers: [
+                        sshTransfer(
+                                cleanRemote:false,
+                                execCommand: 'ansible-playbook /opt/playbooks/downloadanddeploy_as_tomcat_user.yaml -i /opt/playbooks/hosts',
+                                execTimeout: 120000
+                        )
+                    ], 
+                    usePromotionTimestamp: false, 
+                    useWorkspaceInPromotion: false, 
+                    verbose: false)
+                    ])   
+            }
+        }     
+    
     }
 
 }
